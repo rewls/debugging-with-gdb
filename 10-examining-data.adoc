@@ -1,5 +1,6 @@
 = 10 Examining Data
 :source-highlighter: rouge
+:stem: latexmath
 :tabsize: 8
 :toc: left
 
@@ -312,3 +313,72 @@ Press enter to return to parent value:
 * If _arg_ is an expression, then the behavior of this command will be
   identical to that of the `explore` command being passed the type of
   _arg_ as the argument.
+
+== 10.13 Convenience Functions
+
+* gdb also supplies some convenience functions.
+* These have a syntax similar to convenience variables.
+* A convenience function can be used in an expression just like an ordinary
+  function; however, a convenience function is implemented internally to gdb.
+
+'''
+
+* These functions do not require gdb to be configured with Python support,
+  which means that they are always available.
+
+'''
+
+`$_shell (_command-string_)`::
+* Invoke a shell to execute _command-string_.
+* _command-string_ must be a string.
+* The shell runs on the host machine, the machine gdb is running on.
+* Returns the command's exit status.
+* On Unix systems, a command which exits with a zero exit status has
+  succeeded, and non-zero exit status indicates failure.
+* When a command terminates on a fatal signal whose number is stem:[N], gdb
+  uses the value stem:[128 + N] as the exit status, as is standard in Unix
+  shells.
+* Note that stem:[N] is a host signal number, not a target signal number.
+* If you're native debugging, they will be the same, but if cross debugging,
+  the host vs target signal numbers may be completely unrelated.
+* Please consult your host operating system's documentation for the mapping
+  between host signal numbers and signal names.
+* The shell to run is determined in the same way as for the `shell` command.
+* See Section 2.3 [Shell Commands], page 20.
+
+....
+(gdb) print $_shell("true")
+$1 = 0
+(gdb) print $_shell("false")
+$2 = 1
+(gdb) p $_shell("echo hello")
+hello
+$3 = 0
+(gdb) p $_shell("foobar")
+bash: line 1: foobar: command not found
+$4 = 127
+...
+
+* This may also be useful in breakpoint conditions.
+* For example:
+
+....
+(gdb) break function if $_shell("some command") == 0
+....
+
+* In this scenario, you'll want to make sure that the shell command you run
+  in the breakpoint condition takes the least amount of time possible.
+* For example, avoid running a command that may block indefinitely, or that
+  sleeps for a while before exiting.
+* Prefer a command or script which analyzes some state and exits immediately.
+* This is important because the debugged program stops for the breakpoint
+  every time, and then gdb evaluates the breakpoint condition.
+* If the condition is false, the program is re-resumed transparently, without
+  informing you of the stop.
+* A quick shell command thus avoids significantly slowing down the debugged
+  program unnecessarily.
++
+'''
+* Note: unlike the `shell` command, the `$_shell` convenience function does
+  not affect the `$_shell_exitcode` and `$_shell_exitsignal` convenience variables.
+>>>>>>> 2ccba44 (Add 10.13 Convenience Functions)

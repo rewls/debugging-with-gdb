@@ -223,6 +223,9 @@ ____
 ** 10.11 Value History 170
 ** 10.12 Convenience Variables 171
 ** 10.13 Convenience Functions 174
+*** ... 174
+*** [x] `$_shell` 176
+*** ... 177
 ** 10.14 Registers 179
 ** 10.15 Floating Point Hardware 181
 ** 10.16 Vector Unit 181
