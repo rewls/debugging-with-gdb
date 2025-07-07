@@ -314,6 +314,102 @@ Press enter to return to parent value:
   identical to that of the `explore` command being passed the type of
   _arg_ as the argument.
 
+== 10.12 Convenience Variables
+
+* gdb provides convenience variables that you can use within gdb to hold on to
+  a value and refer to it later.
+* These variables exist entirely within gdb; they are not part of your
+  program, and setting a convenience variable has no direct effect on further
+  execution of your program.
+* That is why you can use them freely.
+
+'''
+
+* Convenience variables are prefixed with \'``$``'.
+* Any name preceded by \'``$``' can be used for a convenience variable, unless
+  it is one of the predefined machine-specific register names (see Section
+  10.14 [Registers], page 179).
+* (Value history references, in contrast, are numbers preceded by \'``$``'. +
+  See Section 10.11 [Value History], page 170.)
+* You can save a value in a convenience variable with an assignment
+  expression, just as you would set a variable in your program.
+* For example:
++
+....
+set $foo = *object_ptr
+....
++
+would save in `$foo` the value contained in the object pointed to by
+`object_ptr`.
+
+'''
+
+* Using a convenience variable for the first time creates it, but its value is
+  void until you assign a new value.
+* You can alter the value with another assignment at any time.
+
+'''
+
+* Convenience variables have no fixed types.
+* You can assign a convenience variable any type of value, including
+  structures and arrays, even if that variable already has a value of a
+  different type.
+* The convenience variable, when used as an expression, has the type of its
+  current value.
+
+'''
+
+`show convenience`::
+* Print a list of convenience variables used so far, and their values, as well
+  as a list of the convenience functions.
+* Abbreviated `show conv`.
+
+`init-if-undefined $__variable__ = _expression_`::
+* Set a convenience variable if it has not already been set.
+* This is useful for user-defined commands that keep some state.
+* It is similar, in concept, to using local static variables with initializers
+  in C (except that convenience variables are global).
+* It can also be used to allow users to override default values used in a
+  command script.
++
+'''
+* If the variable is already defined then the _expression_ is not evaluated so
+  any side-effects do not occur.
+
+'''
+
+* One of the ways to use a convenience variable is as a counter to be
+  incremented or a pointer to be advanced.
+* For example, to print a field from successive elements of an array of structures:
+
+....
+set $i = 0
+print bar[$i++]->contents
+....
+
+* Repeat that command by typing `RET`.
+
+'''
+
+* Some convenience variables are created automatically by gdb and given values
+  likely to be useful.
+
+'''
+
+`$_exitcode`::
+* When the program being debugged terminates normally, gdb automatically sets
+  this variable to the exit code of the program, and resets `$_exitsignal` to
+  `void`.
+
+`$_shell_exitcode`::
+`$_shell_exitsignal`::
+* gdb commands such as `shell` and `|` are launching `shell` commands.
+* When a launched command terminates, gdb automatically maintains the
+  variables `$_shell_exitcode` and `$_shell_exitsignal` according to the exit
+  status of the last launched command.
+* These variables are set and used similarly to the variables `$_exitcode` and
+  `$_exitsignal`.
+
 == 10.13 Convenience Functions
 
 * gdb also supplies some convenience functions.

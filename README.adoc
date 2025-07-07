@@ -222,6 +222,10 @@ ____
 ** 10.10 Pretty Printing 168
 ** 10.11 Value History 170
 ** 10.12 Convenience Variables 171
+*** ... 172
+*** [x] `$_exitcode` 172
+*** ... 172
+*** [x] `$_shell_exitcode` `$_shell_exitsignal` 174
 ** 10.13 Convenience Functions 174
 *** ... 174
 *** [x] `$_shell` 176
