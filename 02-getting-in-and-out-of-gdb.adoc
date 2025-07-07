@@ -127,3 +127,88 @@ gdb -help
 * If you have been using gdb to control an attached process or device, you can
   release it with the `detach` command (see Section 4.7 [Debugging an
   Already-running Process], page 41).
+
+== 2.3 Shell Commands
+
+* If you need to execute occasional shell commands during your debugging
+  session, there is no need to leave or suspend gdb; you can just use the
+  `shell` command.
+
+'''
+
+`shell _command-string_`::
+`!_command-string_`::
+* Invoke a shell to execute _command-string_.
+* Note that no space is needed between `!` and _command-string_.
+* On GNU and Unix systems, the environment variable `SHELL`, if it exists,
+  determines which shell to run.
+* Otherwise gdb uses the default shell (`/bin/sh` on GNU and Unix systems,
+  `cmd.exe` on MS-Windows, `COMMAND.COM` on MS-DOS, etc.).
+
+'''
+
+* You may also invoke shell commands from expressions, using the `$_shell`
+  convenience function.
+* See [$_shell convenience function], page 176.
+
+'''
+
+* The utility `make` is often needed in development environments.
+* You do not have to use the `shell` command for this purpose in gdb:
+
+'''
+
+`make _make-args_`::
+* Execute the `make` program with the specified arguments.
+* This is equivalent to \'``shell make _make-args_``'.
+
+`pipe [_command_] | _shell_command_`::
+`| [_command_] | _shell_command_`::
+`pipe -d _delim_ _command_ _delim_ _shell_command_`::
+`| -d _delim_ _command_ _delim_ _shell_command_`::
+* Executes _command_ and sends its output to _shell_command_.
+* Note that no space is needed around `|`.
+* If no _command_ is provided, the last _command_ executed is repeated.
++
+'''
+* In case the _command_ contains a `|`, the option `-d _delim_` can be used to
+  specify an alternate delimiter string _delim_ that separates the command
+  from the _shell_command_.
++
+'''
+* Example:
++
+....
+(gdb) p var
+$1 = {
+  black = 144,
+  red = 233,
+  green = 377,
+  blue = 610,
+  white = 987
+}
+(gdb) pipe p var|wc
+      7      19      80
+(gdb) |p var|wc -l
+7
+(gdb) p /x var
+$4 = {
+  black = 0x90,
+  red = 0xe9,
+  green = 0x179,
+  blue = 0x262,
+  white = 0x3db
+}
+(gdb) ||grep red
+  red => 0xe9,
+(gdb) | -d ! echo this contains a | char\n ! sed -e 's/|/PIPE/'
+this contains a PIPE char
+(gdb) | -d xxx echo this contains a | char!\n xxx sed -e 's/|/PIPE/'
+this contains a PIPE char!
+(gdb)
+....
+
+* The convenience variables `$_shell_exitcode` and `$_shell_exitsignal` can be
+  used to examine the exit status of the last shell command launched by
+  `shell`, `make`, `pipe` and `|`.
+* See Section 10.12 [Convenience Variables], page 171.
