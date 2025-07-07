@@ -136,7 +136,7 @@ ____
 
 == Table of Contents
 
-* Summary of gdb 1
+* [x] link:summary-of-gdb.adoc[Summary of gdb 1]
 * 1 A Sample gdb Session 7
 
 * 2 Getting In and Out of gdb 11
