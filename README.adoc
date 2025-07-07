@@ -139,11 +139,11 @@ ____
 * [x] link:summary-of-gdb.adoc[Summary of gdb 1]
 * [x] link:01-a-sample-gdb-session.adoc[1 A Sample gdb Session 7]
 
-* 2 Getting In and Out of gdb 11
-** 2.1 Invoking gdb 11
+* link:02-getting-in-and-out-of-gdb.adoc[2 Getting In and Out of gdb 11]
+** [x] 2.1 Invoking gdb 11
 ** 2.2 Quitting gdb 19
 ** 2.3 Shell Commands 20
-** 2.4 Logging Output
+** 2.4 Logging Output 21
 
 * 3 gdb Commands 23
 ** 3.1 Command Syntax 23

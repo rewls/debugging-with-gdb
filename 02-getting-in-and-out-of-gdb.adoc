@@ -1,0 +1,105 @@
+= 2 Getting In and Out of gdb
+:toc: left
+
+* This chapter discusses how to start gdb, and how to get out of it.
+* The essentials are:
+** type \'``gdb``' to start gdb.
+** type `_quit_`, `_exit_` or `_Ctrl-d_` to exit.
+
+== 2.1 Invoking gdb
+
+* Invoke gdb by running the program `gdb`.
+* Once started, gdb reads commands from the terminal until you tell it to
+  exit.
+
+'''
+
+* You can also run `gdb` with a variety of arguments and options, to specify
+  more of your debugging environment at the outset.
+
+'''
+
+* The command-line options described here are designed to cover a variety of
+  situations; in some environments, some of these options may effectively be
+  unavailable.
+
+'''
+
+* The most usual way to start gdb is with one argument, specifying an
+  executable program:
+
+[subs="quotes"]
+....
+gdb _program_
+....
+
+* You can also start with both an executable program and a core file
+  specified:
+
+[subs="quotes"]
+....
+gdb _program_ _core_
+....
+
+'''
+
+* You can, instead, specify a process ID as a second argument or use option
+  `-p`, if you want to debug a running process:
++
+[subs="quotes"]
+....
+gdb _program_ 1234
+gdb -p 1234
+....
++
+would attach gdb to process `1234`.
+* With option `-p` you can omit the _program_ filename.
+
+'''
+
+* Taking advantage of the second command-line argument requires a fairly
+  complete operating system; when you use gdb as a remote debugger attached to
+  a bare board, there may not be any notion of "process", and there is often
+  no way to get a core dump.
+* gdb will warn you if it is unable to attach or to read core dumps.
+
+'''
+
+* You can optionally have `gdb` pass any arguments after the executable file
+  to the inferior using `--args`.
+* This option stops option processing.
+
+....
+gdb --args gcc -O2 -c foo.c
+....
+
+'''
+
+* This will cause `gdb` to debug `gcc`, and to set ``gcc``'s command-line
+  arguments (see Section 4.3 [Arguments], page 38) to \'``-O2 -c foo.c``'.
+
+'''
+
+* You can run `gdb` without printing the front material, which describes gdb's
+  non-warranty, by specifying `--silent` (or `-q`/`--quiet`):
+
+....
+gdb --silent
+....
+
+* You can further control how gdb starts up by using command-line options.
+* gdb itself can remind you of the options available.
+* Type
++
+....
+gdb -help
+....
++
+* to display all available options and briefly describe their use (\'``gdb
+  -h``' is a shorter equivalent).
+
+'''
+
+* All options and command line arguments you give are processed in sequential
+  order.
+* The order makes a difference when the \'``-x``' option is used.
