@@ -103,3 +103,27 @@ gdb -help
 * All options and command line arguments you give are processed in sequential
   order.
 * The order makes a difference when the \'``-x``' option is used.
+
+== 2.2 Quitting gdb
+
+`quit [_expression_]`::
+`exit [_expression_]`::
+`q`::
+* To exit gdb, use the `quit` command (abbreviated `q`), the `exit` command,
+  or type an end-of-file character (usually `_Ctrl-d_`).
+* If you do not supply expression, gdb will terminate normally; otherwise it
+  will terminate using the result of expression as the error code.
+
+'''
+
+* An interrupt (often `_Ctrl-c_`) does not exit from gdb, but rather
+  terminates the action of any gdb command that is in progress and returns to
+  gdb command level.
+* It is safe to type the interrupt character at any time because gdb does not
+  allow it to take effect until a time when it is safe.
+
+'''
+
+* If you have been using gdb to control an attached process or device, you can
+  release it with the `detach` command (see Section 4.7 [Debugging an
+  Already-running Process], page 41).
