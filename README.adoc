@@ -1,0 +1,565 @@
+= Debugging with GDB
+
+[quote]
+____
+Debugging with gdb The gnu Source-Level Debugger Tenth Edition, for gdb
+version 16.3 (GDB) by Richard Stallman, Roland Pesch, Stan Shebs, et al.
+
+[%autowidth]
+|===
+|Publication date	|Print length
+
+|2017-08-23.19		|982 pages
+|===
+____
+
+* This file documents the GNU debugger GDB.
+
+'''
+
+* This is the Tenth Edition, of _Debugging with GDB: the GNU Source-Level
+  Debugger_ for GDB (GDB) Version 16.3.
+
+'''
+
+* Copyright © 1988-2024 Free Software Foundation, Inc.
+
+'''
+
+* Permission is granted to copy, distribute and/or modify this document under
+  the terms of the GNU Free Documentation License, Version 1.3 or any later
+  version published by the Free Software Foundation; with the Invariant
+  Sections being "Free Software" and "Free Software Needs Free Documentation",
+  with the Front-Cover Texts being "A GNU Manual," and with the Back-Cover
+  Texts as in (a) below.
+
+'''
+
+(a) The FSF's Back-Cover Text is: "You are free to copy and modify this GNU
+    Manual. Buying copies from GNU Press supports the FSF in developing GNU
+    and promoting software freedom."
+
+== Debugging with GDB
+
+* This file describes GDB, the GNU symbolic debugger.
+
+'''
+
+* This is the Tenth Edition, for GDB (GDB) Version 16.3.
+
+'''
+
+* Copyright (C) 1988-2024 Free Software Foundation, Inc.
+
+'''
+
+* This edition of the GDB manual is dedicated to the memory of Fred Fish.
+* Fred was a long-standing contributor to GDB and to Free software in general.
+* We will miss him.
+
+'''
+
+[%autowidth]
+|===
+|Summary	  		|Summary of GDB
+|Sample Session	  		|A sample GDB session
+|===
+
+[%autowidth]
+|===
+|Invocation	  		|Getting in and out of GDB
+|Commands	  		|GDB commands
+|Running	  		|Running programs under GDB
+|Stopping	  		|Stopping and continuing
+|Reverse Execution		|Running programs backward
+|Process Record and Replay	|Recording inferior's execution and replaying it
+|Stack	  			|Examining the stack
+|Source	  			|Examining source files
+|Data	  			|Examining data
+|Optimized Code	  		|Debugging optimized code
+|Macros	  			|Preprocessor Macros
+|Tracepoints	  		|Debugging remote targets non-intrusively
+|Overlays	  		|Debugging programs that use overlays
+|===
+
+[%autowidth]
+|===
+|Languages	  		|Using GDB with different languages
+|===
+
+[%autowidth]
+|===
+|Symbols	  		|Examining the symbol table
+|Altering	  		|Altering execution
+|GDB Files	  		|GDB files
+|Targets	  		|Specifying a debugging target
+|Remote Debugging	  	|Debugging remote programs
+|Configurations	  		|Configuration-specific information
+|Controlling GDB	  	|Controlling GDB
+|Extending GDB	  		|Extending GDB
+|Interpreters	  		|Command Interpreters
+|TUI	  			|GDB Text User Interface
+|Emacs	  			|Using GDB under GNU Emacs
+|GDB/MI	  			|GDB's Machine Interface.
+|Annotations	  		|GDB's annotation interface.
+|Debugger Adapter Protocol	|The Debugger Adapter Protocol.
+|JIT Interface	  		|Using the JIT debugging interface.
+|In-Process Agent	  	|In-Process Agent
+|===
+
+[%autowidth]
+|===
+|GDB Bugs	  		|Reporting bugs in GDB
+|===
+
+[%autowidth]
+|===
+|Command Line Editing	  	|Command Line Editing
+|Using History Interactively	|Using History Interactively
+|In Memoriam			|In Memoriam
+|Formatting Documentation  	|How to format and print GDB documentation
+|Installing GDB	  		|Installing GDB
+|Maintenance Commands	  	|Maintenance Commands
+|Remote Protocol	  	|GDB Remote Serial Protocol
+|Agent Expressions	  	|The GDB Agent Expression Mechanism
+|Target Descriptions	  	|How targets can describe themselves to GDB
+|Operating System Information	|Getting additional information from the operating system
+|Trace File Format	  	|GDB trace file format
+|Index Section Format	  	|.gdb_index section format
+|Debuginfod	  		|Download debugging resources with debuginfod
+|Man Pages	  		|Manual pages
+|Copying	  		|GNU General Public License says how you can copy and share GDB
+|GNU Free Documentation License	|The license for this documentation
+|Concept Index	  		|Index of GDB concepts
+|Command and Variable Index	|Index of GDB commands, variables, functions, and Python data types
+|===
+
+== Table of Contents
+
+* Summary of gdb 1
+* 1 A Sample gdb Session 7
+
+* 2 Getting In and Out of gdb 11
+** 2.1 Invoking gdb 11
+** 2.2 Quitting gdb 19
+** 2.3 Shell Commands 20
+** 2.4 Logging Output
+
+* 3 gdb Commands 23
+** 3.1 Command Syntax 23
+** 3.2 Command Settings 23
+** 3.3 Command Completion 24
+** 3.4 Filenames As Command Arguments 27
+** 3.5 Command options 28
+** 3.6 Getting Help 29
+
+* 4 Running Programs Under gdb 33
+** 4.1 Compiling for Debugging 33
+** 4.2 Starting your Program 34
+** 4.3 Your Program's Arguments 38
+** 4.4 Your Program's Environment 38
+** 4.5 Your Program's Working Directory 39
+** 4.6 Your Program's Input and Output 40
+** 4.7 Debugging an Already-running Process 41
+** 4.8 Killing the Child Process 42
+** 4.9 Debugging Multiple Inferiors Connections and Programs 42
+** 4.9.1 Inferior-Specific Breakpoints 46
+** 4.10 Debugging Programs with Multiple Threads 47
+** 4.11 Debugging Forks 52
+** 4.12 Setting a Bookmark to Return to Later 54
+** 4.12.1 A Non-obvious Benefit of Using Checkpoints 56
+
+* 5 Stopping and Continuing 57
+** 5.1 Breakpoints, Watchpoints, and Catchpoints 57
+*** 5.1.1 Setting Breakpoints 58
+*** 5.1.2 Setting Watchpoints 66
+*** 5.1.3 Setting Catchpoints 69
+*** 5.1.4 Deleting Breakpoints 73
+*** 5.1.5 Disabling Breakpoints 74
+*** 5.1.6 Break Conditions 76
+*** 5.1.7 Breakpoint Command Lists 77
+*** 5.1.8 Dynamic Printf 79
+*** 5.1.9 How to save breakpoints to a file 80
+*** 5.1.10 Static Probe Points 81
+*** 5.1.11 "Cannot insert breakpoints" 82
+*** 5.1.12 "Breakpoint address adjusted..." 83
+** 5.2 Continuing and Stepping 83
+** 5.3 Skipping Over Functions and Files 87
+** 5.4 Signals 89
+** 5.5 Stopping and Starting Multi-thread Programs 92
+
+* 6 Running programs backward 101
+* 7 Recording Inferior's Execution and Replaying It 103
+
+* 8 Examining the Stack 113
+** 8.1 Stack Frames 113
+** 8.2 Backtraces 114
+** 8.3 Selecting a Frame 117
+** 8.4 Information About a Frame 119
+** 8.5 Applying a Command to Several Frames 120
+** 8.6 Management of Frame Filters 122
+
+* 9 Examining Source Files 125
+** 9.1 Printing Source Lines 125
+** 9.2 Location Specifications 126
+** 9.3 Editing Source Files 130
+** 9.4 Searching Source Files 131
+** 9.5 Specifying Source Directories 131
+** 9.6 Source and Machine Code 135
+** 9.7 Disable Reading Source Code 140
+
+* 10 Examining Data 141
+** 10.1 Expressions 145
+** 10.2 Ambiguous Expressions 146
+** 10.3 Program Variables 147
+** 10.4 Artificial Arrays 149
+** 10.5 Output Formats 150
+** 10.6 Examining Memory 152
+** 10.7 Memory Tagging 154
+** 10.8 Automatic Display 155
+** 10.9 Print Settings 157
+** 10.10 Pretty Printing 168
+** 10.11 Value History 170
+** 10.12 Convenience Variables 171
+** 10.13 Convenience Functions 174
+** 10.14 Registers 179
+** 10.15 Floating Point Hardware 181
+** 10.16 Vector Unit 181
+** 10.17 Operating System Auxiliary Information 181
+** 10.18 Memory Region Attributes 183
+** 10.19 Copy Between Memory and a File 185
+** 10.20 How to Produce a Core File from Your Program 186
+** 10.21 Character Sets 187
+** 10.22 Caching Data of Targets 190
+** 10.23 Search Memory 191
+** 10.24 Value Sizes 192
+
+* 11 Debugging Optimized Code 195
+** 11.1 Inline Functions 195
+** 11.2 Tail Call Frames 196
+
+* 12 C Preprocessor Macros 199
+
+* 13 Tracepoints 203
+** 13.1 Commands to Set Tracepoints 203
+** 13.2 Using the Collected Data 215
+** 13.3 Convenience Variables for Tracepoints 218
+** 13.4 Using Trace Files 219
+
+* 14 Debugging Programs That Use Overlays 221
+** 14.1 How Overlays Work 221
+** 14.2 Overlay Commands 222
+** 14.3 Automatic Overlay Debugging 224
+** 14.4 Overlay Sample Program 225
+
+* 15 Using gdb with Different Languages 227
+** 15.1 Switching Between Source Languages 227
+** 15.2 Displaying the Language 229
+** 15.3 Type and Range Checking 229
+** 15.4 Supported Languages 231
+*** 15.4.1 C and C++ 231
+*** 15.4.2 D 238
+*** 15.4.3 Go 238
+*** 15.4.4 Objective-C 238
+*** 15.4.5 OpenCL C 239
+*** 15.4.6 Fortran 240
+*** 15.4.7 Pascal 243
+*** 15.4.8 Rust 243
+*** 15.4.9 Modula-2 244
+*** 15.4.10 Ada 250
+** 15.5 Unsupported Languages. 261
+
+* 16 Examining the Symbol Table 263
+
+* 17 Altering Execution 277
+** 17.1 Assignment to Variables. 277
+** 17.2 Continuing at a Different Address 278
+** 17.3 Giving your Program a Signal 279
+** 17.4 Returning from a Function 280
+** 17.5 Calling Program Functions 281
+** 17.6 Patching Programs. 285
+** 17.7 Compiling and injecting code in gdb 285
+
+* 18 gdb Files 291
+** 18.1 Commands to Specify Files 291
+** 18.2 File Caching 300
+** 18.3 Debugging Information in Separate Files 300
+** 18.4 Debugging information in a special section 304
+** 18.5 Index Files Speed Up gdb 305
+** 18.6 Extensions to '``.debug_names``' 307
+** 18.7 Errors Reading Symbol Files 307
+** 18.8 GDB Data Files 308
+
+* 19 Specifying a Debugging Target 311
+** 19.1 Active Targets 311
+** 19.2 Commands for Managing Targets 311
+** 19.3 Choosing Target Byte Order 314
+
+* 20 Debugging Remote Programs 315
+** 20.1 Connecting to a Remote Target 315
+** 20.2 Sending files to a remote system 320
+** 20.3 Using the gdbserver Program 320
+** 20.4 Remote Configuration 326
+** 20.5 Implementing a Remote Stub 333
+
+* 21 Configuration-Specific Information 337
+** 21.1 Native 337
+** 21.2 Embedded Operating Systems 348
+** 21.3 Embedded Processors 348
+** 21.4 Architectures 354
+*** 21.4.1 AArch64 354
+*** 21.4.2 x86 358
+*** 21.4.3 Alpha 359
+*** 21.4.4 MIPS 359
+*** 21.4.5 HPPA. 361
+*** 21.4.6 PowerPC. 361
+*** 21.4.7 Sparc64 361
+*** 21.4.8 S12Z 362
+*** 21.4.9 AMD GPU. 362
+
+* 22 Controlling gdb 367
+** 22.1 Prompt 367
+** 22.2 Command Editing 367
+** 22.3 Command History 368
+** 22.4 Screen Size 370
+** 22.5 Output Styling 371
+** 22.6 Numbers 374
+** 22.7 Configuring the Current ABI 375
+** 22.8 Automatically loading associated files 376
+** 22.9 Optional Warnings and Messages 381
+** 22.10 Optional Messages about Internal Happenings 382
+** 22.11 Other Miscellaneous Settings 388
+
+* 23 Extending gdb 391
+** 23.1 Canned Sequences of Commands 391
+** 23.2 Command Aliases 399
+** 23.3 Extending gdb using Python 401
+*** 23.3.1 Python Commands 402
+*** 23.3.2 Python API 403
+**** 23.3.2.1 Basic Python 403
+**** 23.3.2.2 Threading in GDB 409
+**** 23.3.2.3 Exception Handling 410
+**** 23.3.2.4 Values From Inferior 411
+**** 23.3.2.5 Types In Python 418
+**** 23.3.2.6 Pretty Printing API 424
+**** 23.3.2.7 Selecting Pretty-Printers 426
+**** 23.3.2.8 Writing a Pretty-Printer 427
+**** 23.3.2.9 Type Printing API 429
+**** 23.3.2.10 Filtering Frames 430
+**** 23.3.2.11 Decorating Frames 432
+**** 23.3.2.12 Writing a Frame Filter 435
+**** 23.3.2.13 Unwinding Frames in Python 439
+**** 23.3.2.14 Xmethods In Python 443
+**** 23.3.2.15 Xmethod API 444
+**** 23.3.2.16 Writing an Xmethod 446
+**** 23.3.2.17 Inferiors In Python 449
+**** 23.3.2.18 Events In Python 451
+**** 23.3.2.19 Threads In Python 457
+**** 23.3.2.20 Recordings In Python 459
+**** 23.3.2.21 CLI Commands In Python 463
+**** 23.3.2.22 gdb/mi Commands In Python 467
+**** 23.3.2.23 gdb/mi Notifications In Python 469
+**** 23.3.2.24 Parameters In Python 470
+**** 23.3.2.25 Writing new convenience functions 473
+**** 23.3.2.26 Program Spaces In Python 474
+**** 23.3.2.27 Objfiles In Python 476
+**** 23.3.2.28 Accessing inferior stack frames from Python 479
+**** 23.3.2.29 Accessing blocks from Python 482
+**** 23.3.2.30 Python representation of Symbols 484
+**** 23.3.2.31 Symbol table representation in Python 489
+**** 23.3.2.32 Manipulating line tables using Python 490
+**** 23.3.2.33 Manipulating breakpoints using Python 491
+**** 23.3.2.34 Finish Breakpoints 496
+**** 23.3.2.35 Python representation of lazy strings 497
+**** 23.3.2.36 Python representation of architectures 497
+**** 23.3.2.37 Registers In Python 498
+**** 23.3.2.38 Connections In Python 499
+**** 23.3.2.39 Implementing new TUI windows 501
+**** 23.3.2.40 Instruction Disassembly In Python 503
+**** 23.3.2.41 Missing Debug Info In Python 511
+**** 23.3.2.42 Missing Objfiles In Python 513
+*** 23.3.3 Python Auto-loading 516
+*** 23.3.4 Python modules 517
+
+** 23.4 Extending gdb using Guile 521
+*** 23.4.1 Guile Introduction 522
+*** 23.4.2 Guile Commands 522
+*** 23.4.3 Guile API 523
+**** 23.4.3.1 Basic Guile 523
+**** 23.4.3.2 Guile Configuration 525
+**** 23.4.3.3 GDB Scheme Data Types 525
+**** 23.4.3.4 Guile Exception Handling 527
+**** 23.4.3.5 Values From Inferior In Guile 528
+**** 23.4.3.6 Arithmetic In Guile 534
+**** 23.4.3.7 Types In Guile 535
+**** 23.4.3.8 Guile Pretty Printing API 539
+**** 23.4.3.9 Selecting Guile Pretty-Printers 541
+**** 23.4.3.10 Writing a Guile Pretty-Printer 542
+**** 23.4.3.11 Commands In Guile 544
+**** 23.4.3.12 Parameters In Guile 548
+**** 23.4.3.13 Program Spaces In Guile 551
+**** 23.4.3.14 Objfiles In Guile 552
+**** 23.4.3.15 Accessing inferior stack frames from Guile 552
+**** 23.4.3.16 Accessing blocks from Guile 555
+**** 23.4.3.17 Guile representation of Symbols 557
+**** 23.4.3.18 Symbol table representation in Guile 561
+**** 23.4.3.19 Manipulating breakpoints using Guile 562
+**** 23.4.3.20 Guile representation of lazy strings 566
+**** 23.4.3.21 Guile representation of architectures 567
+**** 23.4.3.22 Disassembly In Guile 569
+**** 23.4.3.23 I/O Ports in Guile 569
+**** 23.4.3.24 Memory Ports in Guile 570
+**** 23.4.3.25 Iterators In Guile 571
+*** 23.4.4 Guile Auto-loading 573
+*** 23.4.5 Guile Modules 573
+** 23.5 Auto-loading extensions 574
+** 23.6 Multiple Extension Languages 578
+
+* 24 Command Interpreters 579
+
+* 25 gdb Text User Interface 581
+** 25.1 TUI Overview 581
+** 25.2 TUI Key Bindings 582
+** 25.3 TUI Single Key Mode 583
+** 25.4 TUI Mouse Support 584
+** 25.5 TUI-specific Commands 584
+** 25.6 TUI Configuration Variables 587
+
+* 26 Using gdb under gnu Emacs 589
+
+* 27 The gdb/mi Interface 591
+** Function and Purpose 591
+** Notation and Terminology 591
+** 27.3 gdb/mi General Design 591
+** 27.4 gdb/mi Command Syntax 594
+** 27.5 gdb/mi Compatibility with CLI 597
+** 27.6 gdb/mi Development and Front Ends 597
+** 27.7 gdb/mi Output Records 599
+** 27.8 Simple Examples of gdb/mi Interaction 607
+** 27.9 gdb/mi Command Description Format 608
+** 27.10 gdb/mi Breakpoint Commands 609
+** 27.11 gdb/mi Catchpoint Commands 619
+** 27.12 gdb/mi Program Context 624
+** 27.13 gdb/mi Thread Commands 626
+** 27.14 gdb/mi Ada Tasking Commands 628
+** 27.15 gdb/mi Program Execution 629
+** 27.16 gdb/mi Stack Manipulation Commands 636
+** 27.17 gdb/mi Variable Objects 642
+** 27.18 gdb/mi Data Manipulation 653
+** 27.19 gdb/mi Tracepoint Commands 662
+** 27.20 gdb/mi Symbol Query Commands 668
+** 27.21 gdb/mi File Commands 676
+** 27.22 gdb/mi Target Manipulation Commands 680
+** 27.23 gdb/mi File Transfer Commands 684
+** 27.24 Ada Exceptions gdb/mi Commands. 685
+** 27.25 gdb/mi Support Commands 686
+** 27.26 Miscellaneous gdb/mi Commands 688
+
+* 28 gdb Annotations 697
+** 28.1 What is an Annotation? 697
+** 28.2 The Server Prefix 698
+** 28.3 Annotation for gdb Input. 698
+** 28.4 Errors. 699
+** 28.5 Invalidation Notices 699
+** 28.6 Running the Program 699
+** 28.7 Displaying Source 700
+
+* 29 Debugger Adapter Protocol 701
+
+* 30 JIT Compilation Interface 703
+** 30.1 JIT Declarations 703
+** 30.2 Registering Code 704
+** 30.3 Unregistering Code 704
+** 30.4 Custom Debug Info 704
+
+* 31 In-Process Agent 707
+
+* 32 Reporting Bugs in gdb 711
+** 32.1 Have You Found a Bug? 711
+** 32.2 How to Report Bugs 711
+
+* 33 Command Line Editing 715
+** 33.1 Introduction to Line Editing 715
+** 33.2 Readline Interaction 715
+** 33.3 Readline Init File 718
+** 33.4 Bindable Readline Commands 731
+** 33.5 Readline vi Mode 739
+
+* 34 Using History Interactively 741
+
+* Appendix A In Memoriam 745
+* Appendix B Formatting Documentation 747
+
+* Appendix C Installing gdb 749
+** C.1 Requirements for Building gdb 749
+** C.2 Invoking the gdb configure Script 751
+** C.3 Compiling gdb in Another Directory 752
+** C.4 Specifying Names for Hosts and Targets 753
+** C.5 configure Options 753
+** C.6 System-wide configuration and settings 757
+
+* Appendix D Maintenance Commands 759
+
+* Appendix E gdb Remote Serial Protocol 777
+** E.1 Overview 777
+** E.2 Standard Replies 778
+** E.3 Packets 779
+** E.4 Stop Reply Packets 789
+** E.5 General Query Packets 793
+** E.6 Architecture-Specific Protocol Details 820
+** E.7 Tracepoint Packets 821
+** E.7.1 Relocate instruction reply packet 827
+** E.8 Host I/O Packets 828
+** E.9 Interrupts 830
+** E.10 Notification Packets 830
+** E.11 Remote Protocol Support for Non-Stop Mode 832
+** E.12 Packet Acknowledgment 833
+** E.13 Examples 833
+** E.14 File-I/O Remote Protocol Extension 834
+** E.15 Library List Format 846
+** E.16 Library List Format for SVR4 Targets 847
+** E.17 Memory Map Format 847
+** E.18 Thread List Format 848
+** E.19 Traceframe Info Format 849
+** E.20 Branch Trace Format 849
+** E.21 Branch Trace Configuration Format 850
+
+* Appendix F The GDB Agent Expression Mechanism 853
+** F.1 General Bytecode Design 853
+** F.2 Bytecode Descriptions 855
+** F.3 Using Agent Expressions 860
+** F.4 Varying Target Capabilities 861
+** F.5 Rationale 861
+
+* Appendix G Target Descriptions 865
+** G.1 Retrieving Descriptions 865
+** G.2 Target Description Format 865
+** G.3 Predefined Target Types 869
+** G.4 Enum Target Types 870
+** G.5 Standard Target Features 871
+*** G.5.1 AArch64 Features 871
+*** G.5.2 ARC Features 875
+*** G.5.3 ARM Features 875
+*** G.5.4 i386 Features 879
+*** G.5.5 LoongArch Features 880
+*** G.5.6 MicroBlaze Features 880
+*** G.5.7 MIPS Features 880
+*** G.5.8 M68K Features 881
+*** G.5.9 NDS32 Features 881
+*** G.5.10 Openrisc 1000 Features 881
+*** G.5.11 PowerPC Features 881
+*** G.5.12 RISC-V Features 883
+*** G.5.13 RX Features 883
+*** G.5.14 S/390 and System z Features 883
+*** G.5.15 Sparc Features 884
+*** G.5.16 TMS320C6x Features 884
+
+* Appendix H Operating System Information 885
+* Appendix I Trace File Format 887
+* Appendix J `.gdb_index` section format 889
+* Appendix K Download debugging resources with Debuginfod 893
+* Appendix L Manual pages 895
+* Appendix M GNU GENERAL PUBLIC LICENSE 905
+* Appendix N GNU Free Documentation License 917
+* Concept Index 925
+* Command, Variable, and Function Index 941
