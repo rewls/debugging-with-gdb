@@ -143,7 +143,7 @@ ____
 ** [x] 2.1 Invoking gdb 11
 ** [x] 2.2 Quitting gdb 19
 ** [x] 2.3 Shell Commands 20
-** 2.4 Logging Output 21
+** [x] 2.4 Logging Output 21
 
 * 3 gdb Commands 23
 ** 3.1 Command Syntax 23
