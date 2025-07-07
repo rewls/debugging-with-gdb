@@ -1,0 +1,314 @@
+= 10 Examining Data
+:source-highlighter: rouge
+:tabsize: 8
+:toc: left
+
+* The usual way to examine data in your program is with the `print` command
+  (abbreviated `p`), or its synonym `inspect`.
+* It evaluates and prints the value of an expression of the language your
+  program is written in (see Chapter 15 [Using gdb with Different Languages],
+  page 227).
+* It may also print the expression using a Python-based pretty-printer (see
+  Section 10.10 [Pretty Printing], page 168).
+
+'''
+
+`print [[_options_] --] _expr_`::
+`print [[_options_] --] /_f_ _expr_`::
+* _expr_ is an expression (in the source language).
+* By default the value of _expr_ is printed in a format appropriate to its
+  data type; you can choose a different format by specifying \'``/_f_``',
+  where _f_ is a letter specifying the format; see Section 10.5 [Output
+  Formats], page 150.
++
+'''
+* The `print` command supports a number of options that allow overriding
+  relevant global print settings as set by `set print` subcommands:
++
+'''
+`-address [on|off]`:::
+** Set printing of addresses.
+** Related setting: [set print address], page 157.
+
+`-array [on|off]`:::
+** Pretty formatting of arrays.
+** Related setting: [set print array], page 159.
+
+`-array-indexes [on|off]`:::
+** Set printing of array indexes.
+** Related setting: [set print arrayindexes], page 159.
+
+`-characters __number-of-characters__|elements|unlimited`:::
+** Set limit on string characters to print.
+** The value `elements` causes the limit on array elements to print to be
+   used.
+** The value `unlimited` causes there to be no limit.
+** Related setting: [set print characters], page 159.
+
+`-elements __number-of-elements__|unlimited`:::
+** Set limit on array elements and optionally string characters to print.
+** See [set print characters], page 159, and the `-characters` option above
+   for when this option applies to strings.
+** The value `unlimited` causes there to be no limit.
+** See [set print elements], page 160, for a related CLI command.
+
+`-max-depth depth|unlimited`:::
+** Set the threshold after which nested structures are replaced with ellipsis.
+** Related setting: [set print max-depth], page 163.
+
+`-nibbles [on|off]`:::
+** Set whether to print binary values in groups of four bits, known as
+   "nibbles".
+** See [set print nibbles], page 159.
+
+`-memory-tag-violations [on|off]`:::
+** Set printing of additional information about memory tag violations.
+** See [set print memory-tag-violations], page 164.
+
+`-null-stop [on|off]`:::
+** Set printing of char arrays to stop at first null char.
+** Related setting: [set print null-stop], page 164.
+
+`-object [on|off]`:::
+** Set printing C++ virtual function tables.
+** Related setting: [set print object], page 167.
+
+`-pretty [on|off]`:::
+** Set pretty formatting of structures.
+** Related setting: [set print pretty], page 165.
+
+`-raw-values [on|off]`:::
+** Set whether to print values in raw form, bypassing any pretty-printers for
+   that value.
+** Related setting: [set print raw-values], page 165.
+
+`-repeats __number-of-repeats__|unlimited`:::
+** Set threshold for repeated print elements.
+** `unlimited` causes all elements to be individually printed. Related
+   setting: [set print repeats], page 163.
+
+`-static-members [on|off]`:::
+** Set printing C++ static members.
+** Related setting: [set print staticmembers], page 167.
+
+`-symbol [on|off]`:::
+** Set printing of symbol names when printing pointers.
+** Related setting: [set print symbol], page 158.
+
+`-union [on|off]`:::
+** Set printing of unions interior to structures.
+** Related setting: [set print union], page 165.
+
+`-vtbl [on|off]`:::
+** Set printing of C++ virtual function tables.
+** Related setting: [set print vtbl], page 167.
+
+'''
+
+* Because the `print` command accepts arbitrary expressions which may look
+  like options (including abbreviations), if you specify any command option,
+  then you must use a double dash (`--`) to mark the end of option processing.
+
+'''
+
+* For example, this prints the value of the `-p` expression:
+
+....
+(gdb) print -p
+....
+
+* While this repeats the last value in the value history (see below) with the
+  `-pretty` option in effect:
+
+....
+(gdb) print -p --
+....
+
+* Here is an example including both on option and an expression:
+
+....
+(gdb) print -pretty -- *myptr
+$1 = {
+  next = 0x0,
+  flags = {
+    sweet = 1,
+    sour = 1
+  },
+  meat = 0x54 "Pork"
+}
+....
+
+'''
+
+`print [_options_]`::
+`print [_options_] /_f_`::
+* If you omit _expr_, gdb displays the last value again (from the value
+  history; see Section 10.11 [Value History], page 170).
+* This allows you to conveniently inspect the same value in an alternative
+  format.
+
+'''
+
+* If the architecture supports memory tagging, the `print` command will
+  display pointer/memory tag mismatches if what is being printed is a pointer
+  or reference type.
+* See Section 10.7 [Memory Tagging], page 154.
+
+'''
+
+* A more low-level way of examining data is with the `x` command.
+* It examines data in memory at a specified address and prints it in a
+  specified format.
+* See Section 10.6 [Examining Memory], page 152.
+
+'''
+
+* If you are interested in information about types, or about how the fields of
+  a struct or a class are declared, use the `ptype _expr_` command rather than
+  `print`.
+* See Chapter 16 [Examining the Symbol Table], page 263.
+
+'''
+
+* Another way of examining values of expressions and type information is
+  through the Python extension command `explore` (available only if the gdb
+  build is configured with `--with-python`).
+* It offers an interactive way to start at the highest level (or, the most
+  abstract level) of the data type of an expression (or, the data type itself)
+  and explore all the way down to leaf scalar values/fields embedded in the
+  higher level data types.
+
+'''
+
+`explore _arg_`::
+* _arg_ is either an expression (in the source language), or a type visible in
+  the current context of the program being debugged.
+
+'''
+
+* The working of the `explore` command can be illustrated with an example.
+* If a data type `struct ComplexStruct` is defined in your C program as
++
+[,c]
+----
+struct SimpleStruct
+{
+	int i;
+	double d;
+};
+
+struct ComplexStruct
+{
+	struct SimpleStruct *ss_p;
+	int arr[10];
+};
+----
++
+followed by variable declarations as
++
+[,c]
+----
+struct SimpleStruct ss = { 10, 1.11 };
+struct ComplexStruct cs = { &ss, { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 } };
+----
++
+then, the value of the variable `cs` can be explored using the `explore`
+command as follows.
+
+....
+(gdb) explore cs
+The value of 'cs' is a struct/class of type 'struct ComplexStruct' with
+the following fields:
+
+  ss_p = <Enter 0 to explore this field of type 'struct SimpleStruct *'>
+   arr = <Enter 1 to explore this field of type 'int [10]'>
+
+Enter the field number of choice:
+....
+
+* Since the fields of `cs` are not scalar values, you are being prompted to
+  chose the field you want to explore.
+* Let's say you choose the field `ss_p` by entering 0.
+* Then, since this field is a pointer, you will be asked if it is pointing to
+  a single value.
+* From the declaration of `cs` above, it is indeed pointing to a single value,
+  hence you enter `y`.
+* If you enter `n`, then you will be asked if it were pointing to an array of
+  values, in which case this field will be explored as if it were an array.
+
+....
+'cs.ss_p' is a pointer to a value of type 'struct SimpleStruct'
+Continue exploring it as a pointer to a single value [y/n]: y
+The value of '*(cs.ss_p)' is a struct/class of type 'struct
+SimpleStruct' with the following fields:
+
+  i = 10 .. (Value of type 'int')
+  d = 1.1100000000000001 .. (Value of type 'double')
+
+Press enter to return to parent value:
+....
+
+* If the field `arr` of `cs` was chosen for exploration by entering 1 earlier,
+  then since it is as array, you will be prompted to enter the index of the
+  element in the array that you want to explore.
+
+....
+'cs.arr' is an array of 'int'.
+Enter the index of the element you want to explore in 'cs.arr': 5
+
+'(cs.arr)[5]' is a scalar value of type 'int'.
+
+(cs.arr)[5] = 4
+
+Press enter to return to parent value:
+....
+
+* In general, at any stage of exploration, you can go deeper towards the leaf
+  values by responding to the prompts appropriately, or hit the return key to
+  return to the enclosing data structure (the higher level data structure).
+
+'''
+
+* Similar to exploring values, you can use the `explore` command to explore types.
+* Instead of specifying a value (which is typically a variable name or an
+  expression valid in the current context of the program being debugged), you
+  specify a type name.
+* If you consider the same example as above, your can explore the type `struct
+  ComplexStruct` by passing the argument `struct ComplexStruct` to the
+  `explore` command.
+
+....
+(gdb) explore struct ComplexStruct
+....
+
+* By responding to the prompts appropriately in the subsequent interactive
+  session, you can explore the type `struct ComplexStruct` in a manner similar
+  to how the value `cs` was explored in the above example.
+
+'''
+
+* The `explore` command also has two sub-commands, `explore value` and
+  `explore type`.
+* The former sub-command is a way to explicitly specify that value exploration
+  of the argument is being invoked, while the latter is a way to explicitly
+  specify that type exploration of the argument is being invoked.
+
+'''
+
+`explore value _expr_`::
+* This sub-command of `explore` explores the value of the expression _expr_
+  (if _expr_ is an expression valid in the current context of the program
+  being debugged).
+* The behavior of this command is identical to that of the behavior of the
+  `explore` command being passed the argument _expr_.
+
+`explore type _arg_`::
+* This sub-command of `explore` explores the type of _arg_ (if _arg_ is a type
+  visible in the current context of program being debugged), or the type of
+  the value/expression arg_ (if _arg_ is an expression valid in the current
+  context of the program being debugged).
+* If _arg_ is a type, then the behavior of this command is identical to that
+  of the `explore` command being passed the argument _arg_.
+* If _arg_ is an expression, then the behavior of this command will be
+  identical to that of the `explore` command being passed the type of
+  _arg_ as the argument.

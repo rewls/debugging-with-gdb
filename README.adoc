@@ -208,7 +208,8 @@ ____
 ** 9.6 Source and Machine Code 135
 ** 9.7 Disable Reading Source Code 140
 
-* 10 Examining Data 141
+* link:10-examining-data.adoc[10 Examining Data 141]
+** [x] Introduction 141
 ** 10.1 Expressions 145
 ** 10.2 Ambiguous Expressions 146
 ** 10.3 Program Variables 147
@@ -272,12 +273,12 @@ ____
 * 16 Examining the Symbol Table 263
 
 * 17 Altering Execution 277
-** 17.1 Assignment to Variables. 277
+** 17.1 Assignment to Variables 277
 ** 17.2 Continuing at a Different Address 278
 ** 17.3 Giving your Program a Signal 279
 ** 17.4 Returning from a Function 280
 ** 17.5 Calling Program Functions 281
-** 17.6 Patching Programs. 285
+** 17.6 Patching Programs 285
 ** 17.7 Compiling and injecting code in gdb 285
 
 * 18 gdb Files 291
