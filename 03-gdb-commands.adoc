@@ -1,4 +1,6 @@
 = 3 gdb Commands
+:source-highlighter: rouge
+:tabsize: 8
 :toc: left
 
 * You can abbreviate a gdb command to the first few letters of the command
@@ -161,3 +163,225 @@ is equivalent to the following 3 commands:
 * For example, `with language ada -- with print elements 10` temporarily
   changes the language to Ada and sets a limit of 10 elements to print for
   arrays and strings.
+
+== 3.3 Command Completion
+
+* gdb can fill in the rest of a word in a command for you, if there is only
+  one possibility; it can also show you what the valid possibilities are for
+  the next word in a command, at any time.
+* This works for gdb commands, gdb subcommands, command options, and the names
+  of symbols in your program.
+
+'''
+
+* Press the `TAB` key whenever you want gdb to fill out the rest of a word.
+* If there is only one possibility, gdb fills in the word, and waits for you
+  to finish the command (or press `RET` to enter it).
+* For example, if you type
++
+....
+(gdb) info breTAB
+....
+
+* gdb fills in the rest of the word \'``breakpoints``', since that is the only
+  `info` subcommand beginning with \'``bre``':
++
+....
+(gdb) info breakpoints
+....
+
+* You can either press `RET` at this point, to run the `info breakpoints`
+  command, or backspace and enter something else, if \'``breakpoints``' does
+  not look like the command you expected.
+* (If you were sure you wanted `info breakpoints` in the first place, you
+  might as well just type `RET` immediately after \'``info bre``', to exploit
+  command abbreviations rather than command completion).
+
+'''
+
+* If there is more than one possibility for the next word when you press
+  `TAB`, gdb sounds a bell.
+* You can either supply more characters and try again, or just press `TAB` a
+  second time; gdb displays all the possible completions for that word.
+* For example, you might want to set a breakpoint on a subroutine whose name
+  begins with \'``make_``', but when you type `b make_TAB` gdb just sounds the
+  bell.
+* Typing `TAB` again displays all the function names in your program that
+  begin with those characters, for example:
++
+....
+(gdb) b make_TAB
+....
+
+* gdb sounds bell; press `TAB` again, to see:
++
+....
+make_a_section_from_file make_environ
+make_abs_section make_function_type
+make_blockvector make_pointer_type
+make_cleanup make_reference_type
+make_command make_symbol_completion_list
+(gdb) b make_
+....
+
+* After displaying the available possibilities, gdb copies your partial input
+  (\'``b make_``' in the example) so you can finish the command.
+* If the command you are trying to complete expects either a keyword or a
+  number to follow, then \'``NUMBER``' will be shown among the available
+  completions, for example:
+
+....
+(gdb) print -elements TABTAB
+NUMBER unlimited
+(gdb) print -elements
+....
+
+* Here, the option expects a number (e.g., `100`), not literal `NUMBER`.
+* Such metasyntactical arguments are always presented in uppercase.
+
+'''
+
+* If you just want to see the list of alternatives in the first place, you can
+  press `_M-?_` rather than pressing `TAB` twice.
+* `_M-?_` means `_META ?_`.
+* You can type this either by holding down a key designated as the `META`
+  shift on your keyboard (if there is one) while typing `_?_`, or as `ESC`
+  followed by `_?_`.
+
+'''
+
+* If the number of possible completions is large, gdb will print as much of
+  the list as it has collected, as well as a message indicating that the list
+  may be truncated.
+
+....
+(gdb) b mTABTAB
+main
+<... the rest of the possible completions ...>
+*** List may be truncated, max-completions reached. ***
+(gdb) b m
+....
+
+* This behavior can be controlled with the following commands:
+
+'''
+
+`set max-completions _limit_`::
+`set max-completions unlimited`::
+* Set the maximum number of completion candidates.
+* gdb will stop looking for more completions once it collects this many
+  candidates.
+* This is useful when completing on things like function names as collecting
+  all the possible candidates can be time consuming.
+* The default value is 200.
+* A value of zero disables tab-completion.
+* Note that setting either no limit or a very large limit can make completion
+  slow.
+
+`show max-completions`::
+* Show the maximum number of candidates that gdb will collect and show during
+  completion.
+
+'''
+
+* Sometimes the string you need, while logically a "word", may contain
+  parentheses or other characters that gdb normally excludes from its notion
+  of a word.
+* To permit word completion to work in this situation, you may enclose words
+  in ' (single quote marks) in gdb commands.
+
+'''
+
+* A likely situation where you might need this is in typing an expression that
+  involves a C++ symbol name with template parameters.
+* This is because when completing expressions, GDB treats the \'``<``'
+  character as word delimiter, assuming that it's the less-than comparison
+  operator (see Section 15.4.1.1 [C and C++ Operators], page 231).
+
+'''
+
+* For example, when you want to call a C++ template function interactively
+  using the `print` or `call` commands, you may need to distinguish whether
+  you mean the version of `name` that was specialized for `int`, `name<int>()`,
+  or the version that was specialized for `float`, `name<float>()`.
+* To use the word-completion facilities in this situation, type a single quote
+  ' at the beginning of the function `name`.
+* This alerts gdb that it may need to consider more information than usual when
+  you press `TAB` or `_M-?_` to request word completion:
+
+[subs="quotes"]
+....
+(gdb) p 'func<_M-?_
+func<int>() func<float>()
+(gdb) p 'func<
+....
+
+* When setting breakpoints however (see Section 9.2 [Location Specifications],
+  page 126), you don't usually need to type a quote before the function name,
+  because gdb understands that you want to set a breakpoint on a function:
+
+[subs="quotes"]
+....
+(gdb) b func<_M-?_
+func<int>() func<float>()
+(gdb) b func<
+....
+
+* This is true even in the case of typing the name of C++ overloaded functions
+  (multiple definitions of the same function, distinguished by argument type).
+* For example, when you want to set a breakpoint you don't need to distinguish
+  whether you mean the version of `name` that takes an int parameter,
+  `name(int)`, or the version that takes a float parameter, `name(float)`.
+
+[subs="quotes"]
+....
+(gdb) b bubble(_M-?_
+bubble(int) bubble(double)
+(gdb) b bubble(dou_M-?_
+bubble(double)
+....
+
+* See [quoting names], page 263, for a description of other scenarios that
+  require quoting.
+* For more information about overloaded functions, see Section 15.4.1.3 [C++
+  Expressions], page 234.
+* You can use the command `set overload-resolution off` to disable overload
+  resolution; see Section 15.4.1.7 [gdb Features for C++], page 235.
+
+'''
+
+* When completing in an expression which looks up a field in a structure, gdb
+  also tries{empty}footnote:[The completer can be confused by certain kinds of
+  invalid expressions. Also, it only examines the static type of the
+  expression, not the dynamic type.] to limit completions to the field names
+  available in the type of the left-hand-side:
+
+[subs="quotes"]
+....
+(gdb) p gdb_stdout._M-?_
+magic to_fputs to_rewind
+to_data to_isatty to_write
+to_delete to_put to_write_async_safe
+to_flush to_read
+....
+
+* This is because the `gdb_stdout` is a variable of the type `struct ui_file`
+  that is defined in gdb sources as follows:
+
+[,c]
+----
+struct ui_file
+{
+	int *magic;
+	ui_file_flush_ftype *to_flush;
+	ui_file_write_ftype *to_write;
+	ui_file_write_async_safe_ftype *to_write_async_safe;
+	ui_file_fputs_ftype *to_fputs;
+	ui_file_read_ftype *to_read;
+	ui_file_delete_ftype *to_delete;
+	ui_file_isatty_ftype *to_isatty;
+	ui_file_rewind_ftype *to_rewind;
+	ui_file_put_ftype *to_put;
+	void *to_data;
+}
+----
