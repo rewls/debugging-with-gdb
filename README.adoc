@@ -163,13 +163,13 @@ ____
 ** 4.7 Debugging an Already-running Process 41
 ** 4.8 Killing the Child Process 42
 ** 4.9 Debugging Multiple Inferiors Connections and Programs 42
-** 4.9.1 Inferior-Specific Breakpoints 46
 ** 4.10 Debugging Programs with Multiple Threads 47
 ** 4.11 Debugging Forks 52
 ** [x] 4.12 Setting a Bookmark to Return to Later 54
 
-* 5 Stopping and Continuing 57
+* link:05-stopping-and-continuing.adoc[5 Stopping and Continuing 57]
 ** 5.1 Breakpoints, Watchpoints, and Catchpoints 57
+*** [x] Introduction 57
 *** 5.1.1 Setting Breakpoints 58
 *** 5.1.2 Setting Watchpoints 66
 *** 5.1.3 Setting Catchpoints 69
