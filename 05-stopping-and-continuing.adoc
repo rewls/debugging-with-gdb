@@ -182,3 +182,40 @@ $4 = 1
 * It is not necessary to delete a breakpoint to proceed past it.
 * gdb automatically ignores breakpoints on the first instruction to be
   executed when you continue execution without changing the execution address.
+
+=== 5.1.5 Disabling Breakpoints
+
+* Rather than deleting a breakpoint, watchpoint, or catchpoint, you might
+  prefer to disable it.
+* This makes the breakpoint inoperative as if it had been deleted, but
+  remembers the information on the breakpoint so that you can enable it again
+  later.
+
+'''
+
+* You disable and enable breakpoints, watchpoints, tracepoints, and
+  catchpoints with the `enable` and `disable` commands, optionally specifying
+  one or more breakpoint numbers as arguments.
+* Use `info break` to print a list of all breakpoints, watchpoints,
+  tracepoints, and catchpoints if you do not know which numbers to use.
+
+'''
+
+* Disabling and enabling a breakpoint that has multiple locations affects all
+  of its locations.
+* A breakpoint, watchpoint, or catchpoint can have any of several different
+  states of enablement:
+** Enabled. +
+   The breakpoint stops your program. +
+   A breakpoint set with the `break` command starts out in this state.
+** Disabled. +
+   The breakpoint has no effect on your program.
+** Enabled once. +
+   The breakpoint stops your program, but then becomes disabled.
+** Enabled for a count. +
+   The breakpoint stops your program for the next N times, then becomes
+   disabled.
+** Enabled for deletion. +
+   The breakpoint stops your program, but immediately after it does so it is
+   deleted permanently. +
+   A breakpoint set with the `tbreak` command starts out in this state.

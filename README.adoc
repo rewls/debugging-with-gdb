@@ -174,7 +174,7 @@ ____
 *** 5.1.2 Setting Watchpoints 66
 *** 5.1.3 Setting Catchpoints 69
 *** [x] 5.1.4 Deleting Breakpoints 73
-*** 5.1.5 Disabling Breakpoints 74
+*** [x] 5.1.5 Disabling Breakpoints 74
 *** 5.1.6 Break Conditions 76
 *** 5.1.7 Breakpoint Command Lists 77
 *** 5.1.8 Dynamic Printf 79
