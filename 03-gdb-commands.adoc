@@ -520,3 +520,226 @@ NUMBER unlimited
 * Such metasyntactical arguments are always presented in uppercase.
 * (For more on using the `print` command, see Chapter 10 [Examining Data],
   page 141.)
+
+== 3.6 Getting Help
+
+* You can always ask gdb itself for information on its commands, using the
+  command `help`.
+
+'''
+
+`help`::
+`h`::
+* You can use `help` (abbreviated `h`) with no arguments to display a short
+  list of named classes of commands:
++
+....
+(gdb) help
+List of classes of commands:
+
+aliases -- User-defined aliases of other commands
+breakpoints -- Making program stop at certain points
+data -- Examining data
+files -- Specifying and examining files
+internals -- Maintenance commands
+obscure -- Obscure features
+running -- Running the program
+stack -- Examining the stack
+status -- Status inquiries
+support -- Support facilities
+tracepoints -- Tracing of program execution without
+stopping the program
+user-defined -- User-defined commands
+
+Type "help" followed by a class name for a list of
+commands in that class.
+Type "help" followed by command name for full
+documentation.
+Command name abbreviations are allowed if unambiguous.
+(gdb)
+....
+
+`help _class_`::
+* Using one of the general help classes as an argument, you can get a list of
+  the individual commands in that class.
+* If a command has aliases, the aliases are given after the command name,
+  separated by commas.
+* If an alias has default arguments, the full definition of the alias is given
+  after the first line.
+* For example, here is the help display for the class `status`:
+....
+(gdb) help status
+Status inquiries.
+
+List of commands:
+
+info, inf, i -- Generic command for showing things
+        about the program being debugged
+info address, iamain -- Describe where symbol SYM is stored.
+  alias iamain = info address main
+info all-registers -- List of all registers and their contents,
+        for selected stack frame.
+...
+show, info set -- Generic command for showing things
+        about the debugger
+
+Type "help" followed by command name for full
+documentation.
+Command name abbreviations are allowed if unambiguous.
+(gdb)
+....
+
+`help _command_`::
+* With a command name as help argument, gdb displays a short paragraph on how
+  to use that command.
+* If that command has one or more aliases, gdb will display a first line with
+  the command name and all its aliases separated by commas.
+* This first line will be followed by the full definition of all aliases
+  having default arguments.
+* When asking the help for an alias, the documentation for the aliased command
+  is shown.
++
+'''
+* A user-defined alias can optionally be documented using the `document` command
+  (see Section 23.1.1 [Define], page 391).
+* gdb then considers this alias as different from the aliased command: this
+  alias is not listed in the aliased command help output, and asking help for
+  this alias will show the documentation provided for the alias instead of the
+  documentation of the aliased command.
+
+`apropos [-v] _regexp_`::
+* The `apropos` command searches through all of the gdb commands and aliases,
+  and their documentation, for the regular expression specified in _args_.
+* It prints out all matches found.
+* The optional flag \'``-v``', which stands for \'``verbose``', indicates to
+  output the full documentation of the matching commands and highlight the
+  parts of the documentation matching _regexp_.
+* For example:
++
+....
+apropos alias
+....
++
+results in:
++
+....
+alias -- Define a new command that is an alias of an existing command
+aliases -- User-defined aliases of other commands
+....
++
+while
++
+....
+apropos -v cut.*thread apply
+....
++
+results in the below output, where \'``cut for 'thread apply'``' is
+highlighted if styling is enabled.
++
+....
+taas -- Apply a command to all threads (ignoring errors
+and empty output).
+Usage: taas COMMAND
+shortcut for 'thread apply all -s COMMAND'
+
+tfaas -- Apply a command to all frames of all threads
+(ignoring errors and empty output).
+Usage: tfaas COMMAND
+shortcut for 'thread apply all -s frame apply all -s COMMAND'
+....
+
+`complete _args_`::
+* The `complete _args_` command lists all the possible completions for the
+  beginning of a command.
+* Use _args_ to specify the beginning of the command you want completed.
+* For example:
++
+....
+complete i
+....
++
+* results in:
+....
+if
+ignore
+info
+inspect
+....
+* This is intended for use by gnu Emacs.
+
+'''
+
+* In addition to `help`, you can use the gdb commands `info` and `show` to
+  inquire about the state of your program, or the state of gdb itself.
+* Each command supports many topics of inquiry; this manual introduces each of
+  them in the appropriate context.
+* The listings under `info` and under `show` in the Command, Variable, and
+  Function Index point to all the sub-commands.
+* See [Command and Variable Index], page 941.
+
+'''
+
+`info`::
+* This command (abbreviated `i`) is for describing the state of your program.
+* For example, you can show the arguments passed to a function with `info
+  args`, list the registers currently in use with `info registers`, or list
+  the breakpoints you have set with `info breakpoints`.
+* You can get a complete list of the `info` sub-commands with `help info`.
+
+`set`::
+* You can assign the result of an expression to an environment variable with
+  `set`.
+* For example, you can set the gdb prompt to a $-sign with `set prompt $`.
+
+`show`::
+* In contrast to `info`, `show` is for describing the state of gdb itself.
+* You can change most of the things you can `show`, by using the related
+  command `set`; for example, you can control what number system is used for
+  displays with `set radix`, or simply inquire which is currently in use with
+  `show radix`.
++
+'''
+* To display all the settable parameters and their current values, you can use
+  `show` with no arguments; you may also use `info set`.
+* Both commands produce the same display.
+
+'''
+
+* Here are several miscellaneous `show subcommands`, all of which are
+  exceptional in lacking corresponding `set` commands:
+
+'''
+
+`show version`::
+* Show what version of gdb is running.
+* You should include this information in gdb bug-reports.
+* If multiple versions of gdb are in use at your site, you may need to
+  determine which version of gdb you are running; as gdb evolves, new commands
+  are introduced, and old ones may wither away.
+* Also, many system vendors ship variant versions of gdb, and there are
+  variant versions of gdb in gnu/Linux distributions as well.
+* The version number is the same as the one announced when you start gdb.
+
+`show copying`::
+`info copying`::
+* Display information about permission for copying gdb.
+
+`show warranty`::
+`info warranty`::
+* Display the gnu "NO WARRANTY" statement, or a warranty, if your version of
+  gdb comes with one.
+
+`show configuration`::
+* Display detailed information about the way gdb was configured when it was
+  built.
+* This displays the optional arguments passed to the `configure` script and
+  also configuration parameters detected automatically by `configure`.
+* When reporting a gdb bug (see Chapter 32 [GDB Bugs], page 711), it is
+  important to include this information in your report.
++
+'''
+* This commands also displays the version number of the Readline library that
+  gdb is using.
+* After the version number will appear either \'``(system)``' indicating gdb
+  is using the shared system Readline library, or \'``(internal)``' indicating
+  gdb is using a statically linked in version of the Readline library.

@@ -151,7 +151,7 @@ ____
 ** [x] 3.3 Command Completion 24
 ** [x] 3.4 Filenames As Command Arguments 27
 ** [x] 3.5 Command options 28
-** 3.6 Getting Help 29
+** [x] 3.6 Getting Help 29
 
 * 4 Running Programs Under gdb 33
 ** 4.1 Compiling for Debugging 33
