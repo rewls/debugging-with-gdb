@@ -64,3 +64,100 @@
 * The `Ctrl-o` binding is useful for repeating a complex sequence of commands.
 * This command accepts the current line, like `RET`, and then fetches the next
   line relative to the current line from the history for editing.
+
+== 3.2 Command Settings
+
+* Many commands change their behavior according to command-specific variables
+  or settings.
+* These settings can be changed with the `set` subcommands.
+* For example, the `print` command (see Chapter 10 [Examining Data], page 141)
+  prints arrays differently depending on settings changeable with the commands
+  `set print elements NUMBER-OF-ELEMENTS` and `set print array-indexes`, among
+  others.
+
+'''
+
+* You can change these settings to your preference in the `gdbinit` files
+  loaded at gdb startup.
+* See Section 2.1.3 [Startup], page 16.
+
+'''
+
+* The settings can also be changed interactively during the debugging session.
+* For example, to change the limit of array elements to print, you can do the
+  following:
+
+....
+(gdb) set print elements 10
+(gdb) print some_array
+$1 = {0, 10, 20, 30, 40, 50, 60, 70, 80, 90...}
+....
+
+'''
+
+* The above `set print elements 10` command changes the number of elements to
+  print from the default of 200 to 10.
+* If you only intend this limit of 10 to be used for printing `some_array`,
+  then you must restore the limit back to 200, with `set print elements 200`.
+* Some commands allow overriding settings with command options.
+* For example, the `print` command supports a number of options that allow
+  overriding relevant global print settings as set by `set print` subcommands.
+* See [print options], page 141.
+* The example above could be rewritten as:
+
+....
+(gdb) print -elements 10 -- some_array
+$1 = {0, 10, 20, 30, 40, 50, 60, 70, 80, 90...}
+....
+
+'''
+
+* Alternatively, you can use the `with` command to change a setting
+  temporarily, for the duration of a command invocation.
+
+'''
+
+`with _setting_ [_value_] [-- _command_]`::
+`w _setting_ [_value_] [-- _command_]`::
+* Temporarily set _setting_ to _value_ for the duration of command.
++
+'''
+* _setting_ is any setting you can change with the `set` subcommands.
+* _value_ is the value to assign to `setting` while running `command`.
++
+'''
+* If no _command_ is provided, the last command executed is repeated.
++
+'''
+* If a _command_ is provided, it must be preceded by a double dash (`--`)
+  separator.
+* This is required because some settings accept free-form arguments, such as
+  expressions or filenames.
++
+'''
+* For example, the command
++
+....
+(gdb) with print array on -- print some_array
+....
++
+is equivalent to the following 3 commands:
++
+....
+(gdb) set print array on
+(gdb) print some_array
+(gdb) set print array off
+....
+
+* The `with` command is particularly useful when you want to override a
+  setting while running user-defined commands, or commands defined in Python
+  or Guile.
+* See Chapter 23 [Extending GDB], page 391.
++
+....
+(gdb) with print pretty on -- my_complex_command
+....
+* To change several settings for the same command, you can nest `with` commands.
+* For example, `with language ada -- with print elements 10` temporarily
+  changes the language to Ada and sets a limit of 10 elements to print for
+  arrays and strings.
