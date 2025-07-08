@@ -184,7 +184,7 @@ ____
 *** 5.1.12 "Breakpoint address adjusted..." 83
 ** 5.2 Continuing and Stepping 83
 ** 5.3 Skipping Over Functions and Files 87
-** 5.4 Signals 89
+** [x] 5.4 Signals 89
 ** 5.5 Stopping and Starting Multi-thread Programs 92
 
 * 6 Running programs backward 101
