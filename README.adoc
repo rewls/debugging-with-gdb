@@ -166,8 +166,7 @@ ____
 ** 4.9.1 Inferior-Specific Breakpoints 46
 ** 4.10 Debugging Programs with Multiple Threads 47
 ** 4.11 Debugging Forks 52
-** 4.12 Setting a Bookmark to Return to Later 54
-** 4.12.1 A Non-obvious Benefit of Using Checkpoints 56
+** [x] 4.12 Setting a Bookmark to Return to Later 54
 
 * 5 Stopping and Continuing 57
 ** 5.1 Breakpoints, Watchpoints, and Catchpoints 57
