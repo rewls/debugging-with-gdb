@@ -68,3 +68,96 @@
   the DWARF debugging format that your compiler supports.
 * DWARF is currently the most expressive and best supported debugging format
   in gdb.
+
+== 4.2 Starting your Program
+
+`run`::
+`r`::
+* Use the `run` command to start your program under gdb.
+* You must first specify the program name with an argument to gdb (see Chapter
+  2 [Getting In and Out of gdb], page 11), or by using the i`file` or
+  `exec-file` command (see Section 18.1 [Commands to Specify Files], page
+  291).
+
+'''
+
+* If you are running your program in an execution environment that supports
+  processes, `run` creates an inferior process and makes that process run your
+  program.
+* In some environments without processes, `run` jumps to the start of your
+  program.
+* Other targets, like \'``remote``', are always running.
+* If you get an error message like this one:
++
+....
+The "remote" target does not support "run".
+Try "help target" or "continue".
+....
++
+then use `continue` to run your program.
+* You may need `load` first (see [load], page 313).
+
+'''
+
+* The execution of a program is affected by certain information it receives
+  from its superior.
+* gdb provides ways to specify this information, which you must do before
+  starting your program.
+* (You can change it after starting your program, but such changes only affect
+  your program the next time you start it.)
+* This information may be divided into four categories:
+
+'''
+
+The _arguments_.::
+* Specify the arguments to give your program as the arguments of the `run`
+  command.
+* If a shell is available on your target, the shell is used to pass the
+  arguments, so that you may use normal conventions (such as wildcard
+  expansion or variable substitution) in describing the arguments.
+* In Unix systems, you can control which shell is used with the `SHELL`
+  environment variable.
+* If you do not define `SHELL`, gdb uses the default shell (`/bin/sh`).
+* You can disable use of any shell with the `set startup-with-shell` command
+  (see below for details).
+
+The _environment_.::
+* Your program normally inherits its environment from gdb, but you can use the
+  gdb commands `set environment` and `unset environment` to change parts of
+  the environment that affect your program.
+* See Section 4.4 [Your Program's Environment], page 38.
+
+The _working directory_.::
+* You can set your program's working directory with the command `set cwd`.
+* If you do not set any working directory with this command, your program will
+  inherit gdb's working directory if native debugging, or the remote server's
+  working directory if remote debugging.
+* See Section 4.5 [Your Program's Working Directory], page 39.
+
+The _standard input and output_.::
+* Your program normally uses the same device for standard input and standard
+  output as gdb is using.
+* You can redirect input and output in the `run` command line, or you can use
+  the `tty` command to set a different device for your program.
+* See Section 4.6 [Your Program's Input and Output], page 40.
++
+[WARNING]
+====
+* While input and output redirection work, you cannot use pipes to pass the
+  output of the program you are debugging to another program; if you attempt
+  this, gdb is likely to wind up debugging the wrong program.
+====
+
+* When you issue the `run` command, your program begins to execute
+  immediately.
+* See Chapter 5 [Stopping and Continuing], page 57, for discussion of how to
+  arrange for your program to stop.
+* Once your program has stopped, you may call functions in your program, using
+  the `print` or `call` commands.
+* See Chapter 10 [Examining Data], page 141.
+
+'''
+
+* If the modification time of your symbol file has changed since the last time
+  gdb read its symbols, gdb discards its symbol table, and reads it again.
+* When it does this, gdb tries to retain your current breakpoints.

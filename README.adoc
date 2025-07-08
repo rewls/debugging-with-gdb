@@ -155,7 +155,7 @@ ____
 
 * link:04-running-programs-under-gdb.adoc[4 Running Programs Under gdb 33]
 ** [x] 4.1 Compiling for Debugging 33
-** 4.2 Starting your Program 34
+** [x] 4.2 Starting your Program 34
 ** 4.3 Your Program's Arguments 38
 ** 4.4 Your Program's Environment 38
 ** 4.5 Your Program's Working Directory 39
