@@ -162,6 +162,334 @@ The _standard input and output_.::
   gdb read its symbols, gdb discards its symbol table, and reads it again.
 * When it does this, gdb tries to retain your current breakpoints.
 
+== 4.9 Debugging Multiple Inferiors Connections and Programs
+
+* gdb lets you run and debug multiple programs in a single session.
+* In addition, gdb on some systems may let you run several programs
+  simultaneously (otherwise you have to exit from one before starting
+  another).
+* On some systems gdb may even let you debug several programs simultaneously
+  on different remote systems.
+* In the most general case, you can have multiple threads of execution in each
+  of multiple processes, launched from multiple executables, running on
+  different machines.
+
+'''
+
+* gdb represents the state of each program execution with an object called an
+  _inferior_.
+* An inferior typically corresponds to a process, but is more general and
+  applies also to targets that do not have processes.
+* Inferiors may be created before a process runs, and may be retained after a
+  process exits.
+* Inferiors have unique identifiers that are different from process ids.
+* Usually each inferior will also have its own distinct address space,
+  although some embedded targets may have several inferiors running in
+  different parts of a single address space.
+* Each inferior may in turn have multiple threads running in it.
+
+'''
+
+* The commands `info inferiors` and `info connections`, which will be
+  introduced below, accept a space-separated _ID list_ as their argument
+  specifying one or more elements on which to operate.
+* A list element can be either a single non-negative number, like \'``5``', or
+  an ascending range of such numbers, like \'``5-7``'.
+* A list can consist of any combination of such elements, even duplicates or
+  overlapping ranges are valid.
+* E.g. \'``1 4-6 5 4-4``' or \'``1 2 4-7``'.
+
+'''
+
+* To find out what inferiors exist at any moment, use `info inferiors`:
+
+'''
+
+`info inferiors`::
+* Print a list of all inferiors currently being managed by gdb.
+* By default all inferiors are printed, but the ID list _id_... can be used to
+  limit the display to just the requested inferiors.
++
+'''
+* gdb displays for each inferior (in this order):
+1. the inferior number assigned by gdb
+2. the target system's inferior identifier
+3. the target connection the inferior is bound to, including the unique
+   connection number assigned by gdb, and the protocol used by the connection.
+4. the name of the executable the inferior is running.
++
+'''
+* An asterisk \'``*``' preceding the gdb inferior number indicates the current
+  inferior.
++
+'''
+* For example,
++
+....
+(gdb) info inferiors
+  Num	Description	Connection			Executable
+* 1	process 3401	1 (native)			goodbye
+  2	process 2307	2 (extended-remote host:10000)	hello
+....
+
+'''
+
+* To get information about the current inferior, use `inferior`:
+
+'''
+
+`inferior`::
+* Shows information about the current inferior.
+* For example,
++
+....
+(gdb) inferior
+[Current inferior is 1 [process 3401] (helloworld)]
+....
+
+'''
+
+* To find out what open target connections exist at any moment, use `info
+  connections`:
+
+'''
+
+`info connections`::
+* Print a list of all open target connections currently being managed by gdb.
+* By default all connections are printed, but the ID list _id_... can be used
+  to limit the display to just the requested connections.
+* gdb displays for each connection (in this order):
+1. the connection number assigned by gdb.
+2. the protocol used by the connection.
+3. a textual description of the protocol used by the connection.
++
+'''
+* An asterisk \'``*``' preceding the connection number indicates the
+  connection of the current inferior.
+* For example,
++
+....
+(gdb) info connections
+  Num	What				Description
+* 1	extended-remote host:10000	Extended remote serial target in gdb-specific protocol
+  2	native				Native process
+  3	core				Local core dump file
+....
+
+'''
+
+* To switch focus between inferiors, use the `inferior` command:
+
+'''
+
+`inferior _infno_`::
+* Make inferior number _infno_ the current inferior.
+* The argument _infno_ is the inferior number assigned by gdb, as shown in the
+  first field of the \'``info inferiors``' display.
+
+'''
+
+* The debugger convenience variable \'``$_inferior``' contains the number of
+  the current inferior.
+* You may find this useful in writing breakpoint conditional expressions,
+  command scripts, and so forth.
+* See Section 10.12 [Convenience Variables], page 171, for general information
+  on convenience variables.
+
+'''
+
+* You can get multiple executables into a debugging session via the
+  `add-inferior` and `clone-inferior` commands.
+* On some systems gdb can add inferiors to the debug session automatically by
+  following calls to `fork` and `exec`.
+* To remove inferiors from the debugging session use the `remove-inferiors`
+  command.
+
+'''
+
+`add-inferior [ -copies _n_ ] [ -exec _executable_ ] [-no-connection ]`::
+* Adds _n_ inferiors to be run using _executable_ as the executable; _n_
+  defaults to 1.
+* If no _executable_ is specified, the inferiors begins empty, with no
+  program.
+* You can still assign or change the program assigned to the inferior at any
+  time by using the `file` command with the executable name as its argument.
++
+'''
+* By default, the new inferior begins connected to the same target connection
+  as the current inferior.
+* For example, if the current inferior was connected to `gdbserver` with
+  `target remote`, then the new inferior will be connected to the same
+  `gdbserver` instance.
+* The \'``-no-connection``' option starts the new inferior with no connection
+  yet.
+* You can then for example use the `target remote` command to connect to some
+  other `gdbserver` instance, use `run` to spawn a local program, etc.
+
+`clone-inferior [ -copies _n_ ] [ _infno_ ]`::
+* Adds _n_ inferiors ready to execute the same program as inferior _infno_;
+  _n_ defaults to 1, and _infno_ defaults to the number of the current
+  inferior.
+* This command copies the values of the _args_, _inferior-tty_ and _cwd_
+  properties from the current inferior to the new one.
+* It also propagates changes the user made to environment variables using the
+  `set environment` and `unset environment` commands.
+* This is a convenient command when you want to run another instance of the
+  inferior you are debugging.
++
+....
+(gdb) info inferiors
+  Num	Description	Connection	Executable
+* 1	process 29964	1 (native)	helloworld
+(gdb) clone-inferior
+Added inferior 2.
+1 inferiors added.
+(gdb) info inferiors
+  Num	Description	Connection	Executable
+* 1	process 29964	1 (native)	helloworld
+  2	<null>		1 (native)	helloworld
+....
+
+* You can now simply switch focus to inferior 2 and run it.
+
+`remove-inferiors _infno_...`::
+* Removes the inferior or inferiors _infno_....
+* It is not possible to remove an inferior that is running with this command.
+* For those, use the `kill` or `detach` command first.
+
+'''
+
+* To quit debugging one of the running inferiors that is not the current
+  inferior, you can either `detach` from it by using the `detach inferior`
+  command (allowing it to run independently), or `kill` it using the `kill
+  inferiors` command:
+
+'''
+
+`detach inferior _infno_...`::
+* Detach from the inferior or inferiors identified by gdb inferior number(s)
+  _infno_....
+* Note that the inferior's entry still stays on the list of inferiors shown by
+  `info inferiors`, but its Description will show \'``<null>``'.
+
+`kill inferiors _infno_...`::
+* Kill the inferior or inferiors identified by gdb inferior number(s)
+  _infno_....
+* Note that the inferior's entry still stays on the list of inferiors shown by
+  `info inferiors`, but its Description will show \'``<null>``'.
+
+'''
+
+* After the successful completion of a command such as `detach`, `detach
+  inferiors`, `kill` or `kill inferiors`, or after a normal process exit, the
+  inferior is still valid and listed with `info inferiors`, ready to be
+  restarted.
+
+'''
+
+* Many commands will work the same with multiple programs as with a single
+  program: e.g., `print myglobal` will simply display the value of `myglobal`
+  in the current inferior.
+
+'''
+
+* Occasionally, when debugging gdb itself, it may be useful to get more info
+  about the relationship of inferiors, programs, address spaces in a debug
+  session.
+* You can do that with the `maint info program-spaces` command.
+
+'''
+
+`maint info program-spaces`::
+* Print a list of all program spaces currently being managed by gdb.
+* gdb displays for each program space (in this order):
+1. the program space number assigned by gdb
+2. the name of the executable loaded into the program space, with e.g., the
+   `file` command.
+3. the name of the core file loaded into the program space, with e.g., the
+   `core-file` command.
++
+'''
+* An asterisk \'``*``' preceding the gdb program space number indicates the
+  current program space.
++
+'''
+* In addition, below each program space line, gdb prints extra information
+  that isn't suitable to display in tabular form.
+* For example, the list of inferiors bound to the program space.
++
+....
+(gdb) maint info program-spaces
+  Id	Executable	Core File
+* 1	hello
+  2	goodbye
+         Bound inferiors: ID 1 (process 21561)
+....
+
+* Here we can see that no inferior is running the program `hello`, while
+  process 21561 is running the program `goodbye`.
+* On some targets, it is possible that multiple inferiors are bound to the
+  same program space.
+* The most common example is that of debugging both the parent and child
+  processes of a `vfork` call.
+* For example,
++
+....
+(gdb) maint info program-spaces
+  Id	Executable	Core File
+* 1	vfork-test
+         Bound inferiors: ID 2 (process 18050), ID 1 (process 18045)
+....
+
+* Here, both inferior 2 and inferior 1 are running in the same program space
+  as a result of inferior 1 having executed a `vfork` call.
+
+=== 4.9.1 Inferior-Specific Breakpoints
+
+* When debugging multiple inferiors, you can choose whether to set breakpoints
+  for all inferiors, or for a particular inferior.
+
+'''
+
+`break _locspec_ inferior _inferior-id_`::
+`break _locspec_ inferior _inferior-id_ if ...`::
+* _locspec_ specifies a code location or locations in your program.
+* See Section 9.2 [Location Specifications], page 126, for details.
++
+'''
+* Use the qualifier \'``inferior _inferior-id``' with a breakpoint command to
+  specify that you only want gdb to stop when a particular inferior reaches
+  this breakpoint.
+* The _inferior-id_ specifier is one of the inferior identifiers assigned by
+  gdb, shown in the first column of the \'``info inferiors``' output.
++
+'''
+* If you do not specify \'``inferior _inferior-id_``' when you set a
+  breakpoint, the breakpoint applies to all inferiors of your program.
+* You can use the `inferior` qualifier on conditional breakpoints as well; in
+  this case, place \'``inferior _inferior-id_``' before or after the
+  breakpoint condition, like this:
++
+....
+(gdb) break frik.c:13 inferior 2 if bartab > lim
+....
+
+'''
+
+* Inferior-specific breakpoints are automatically deleted when the
+  corresponding inferior is removed from gdb.
+* For example:
+....
+(gdb) remove-inferiors 2
+Inferior-specific breakpoint 3 deleted - inferior 2 has been removed.
+....
+
+* A breakpoint can't be both inferior-specific and thread-specific (see
+  Section 5.5.4 [Thread-Specific Breakpoints], page 96), or task-specific (see
+  Section 15.4.10.7 [Ada Tasks], page 255); using more than one of the
+  inferior, thread, or task keywords when creating a breakpoint will give an
+  error.
+
 == 4.12 Setting a Bookmark to Return to Later
 
 * On certain operating systems{empty}footnote:[Currently, only gnu/Linux.],

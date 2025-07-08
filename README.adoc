@@ -162,7 +162,7 @@ ____
 ** 4.6 Your Program's Input and Output 40
 ** 4.7 Debugging an Already-running Process 41
 ** 4.8 Killing the Child Process 42
-** 4.9 Debugging Multiple Inferiors Connections and Programs 42
+** [x] 4.9 Debugging Multiple Inferiors Connections and Programs 42
 ** 4.10 Debugging Programs with Multiple Threads 47
 ** 4.11 Debugging Forks 52
 ** [x] 4.12 Setting a Bookmark to Return to Later 54
